@@ -3,7 +3,7 @@
     <svg
       class="boxplot-svg"
       :viewBox="viewBox"
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="none"
     >
       <!-- Whiskers -->
       <line
@@ -243,10 +243,13 @@ export default {
     };
 
     // Calculate the viewBox based on orientation
+    // Use a square viewBox so the boxplot centers and scales properly regardless of aspect ratio
     const viewBox = computed(() => {
       const w = orientation.value === 'vertical' ? width.value : height.value;
       const h = orientation.value === 'vertical' ? height.value : width.value;
-      return `0 0 ${w} ${h}`;
+      // Use the larger dimension to create a square viewBox that accommodates both dimensions
+      const size = Math.max(w, h);
+      return `0 0 ${size} ${size}`;
     });
 
     // Calculate the center of the box
@@ -305,11 +308,14 @@ export default {
     const max = computed(() => getScaledValue(maxValue.value));
     const outliers = computed(() => outlierValues.value);
 
-    // Container style - fluid sizing for WeWeb editor
+    // Container style - the width/height properties define the viewBox dimensions
+    // The actual rendered size is controlled by the parent element's CSS
     const containerStyle = computed(() => ({
       boxSizing: 'border-box',
       overflow: 'visible',
       border: 'none',
+      // Width and height properties define the data space, not the render size
+      // The parent container (or CSS) controls actual pixel dimensions
     }));
 
     return {
