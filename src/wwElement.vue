@@ -308,7 +308,7 @@ export default {
     // Container style - fluid sizing for WeWeb editor
     const containerStyle = computed(() => ({
       boxSizing: 'border-box',
-      overflow: 'hidden',
+      overflow: 'visible',
       border: 'none',
     }));
 
@@ -372,6 +372,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: visible;
 }
 
 .boxplot-svg {
