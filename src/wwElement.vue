@@ -364,11 +364,18 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: visible;
+  /* Ensure container adapts to parent's dimensions */
+  min-width: 0;
+  min-height: 0;
 }
 
 .boxplot-svg {
   width: 100%;
   height: 100%;
   overflow: visible;
+  flex: 1;
+  /* Ensure SVG respects parent constraints */
+  min-width: 0;
+  min-height: 0;
 }
 </style>
