@@ -185,8 +185,6 @@ export default {
     const orientation = computed(() => props.content?.orientation ?? 'vertical');
 
     // Styling properties
-    const width = computed(() => props.content?.width ?? 200);
-    const height = computed(() => props.content?.height ?? 400);
     const padding = computed(() => props.content?.padding ?? 40);
     const boxWidth = computed(() => props.content?.boxWidth ?? 50);
     const capWidth = computed(() => props.content?.capWidth ?? boxWidth.value);
@@ -242,22 +240,13 @@ export default {
       }
     };
 
-    // Calculate the viewBox based on orientation
-    // Use a square viewBox so the boxplot centers and scales properly regardless of aspect ratio
-    const viewBox = computed(() => {
-      const w = orientation.value === 'vertical' ? width.value : height.value;
-      const h = orientation.value === 'vertical' ? height.value : width.value;
-      // Use the larger dimension to create a square viewBox that accommodates both dimensions
-      const size = Math.max(w, h);
-      return `0 0 ${size} ${size}`;
-    });
+    // Fixed viewBox size - square coordinate space for centering
+    // The actual render size is controlled by the parent container
+    const viewBoxSize = 500;
+    const viewBox = computed(() => `0 0 ${viewBoxSize} ${viewBoxSize}`);
 
     // Calculate the center of the box
-    const boxCenter = computed(() => {
-      return orientation.value === 'vertical' 
-        ? width.value / 2 
-        : height.value / 2;
-    });
+    const boxCenter = computed(() => viewBoxSize / 2);
 
     // Calculate the data range
     const dataRange = computed(() => {
@@ -288,15 +277,13 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      const availableSpace = orientation.value === 'vertical' 
-        ? height.value - 2 * padding.value 
-        : width.value - 2 * padding.value;
+      const availableSpace = viewBoxSize - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
       // For vertical orientation, we need to invert the y-coordinate
-      return orientation.value === 'vertical' 
-        ? height.value - scaled 
+      return orientation.value === 'vertical'
+        ? viewBoxSize - scaled
         : scaled;
     };
 
@@ -320,8 +307,6 @@ export default {
 
     return {
       // Dimensions and orientation
-      width,
-      height,
       orientation,
       viewBox,
       boxCenter,

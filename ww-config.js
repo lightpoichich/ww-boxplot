@@ -136,39 +136,7 @@ tooltip: 'Choose whether to display the boxplot vertically or horizontally',
 /* wwEditor:end */
 },
 
-// Dimensions
-width: {
-label: { en: 'Width' },
-type: 'Number',
-section: 'settings',
-bindable: true,
-defaultValue: 200,
-/* wwEditor:start */
-bindingValidation: {
-type: 'number',
-tooltip: 'The width of the boxplot in pixels',
-},
-propertyHelp: {
-tooltip: 'The width of the boxplot in pixels',
-},
-/* wwEditor:end */
-},
-height: {
-label: { en: 'Height' },
-type: 'Number',
-section: 'settings',
-bindable: true,
-defaultValue: 400,
-/* wwEditor:start */
-bindingValidation: {
-type: 'number',
-tooltip: 'The height of the boxplot in pixels',
-},
-propertyHelp: {
-tooltip: 'The height of the boxplot in pixels',
-},
-/* wwEditor:end */
-},
+// Padding
 padding: {
 label: { en: 'Padding' },
 type: 'Number',
