@@ -2,9 +2,8 @@
   <div class="boxplot-container" :style="containerStyle">
     <svg
       class="boxplot-svg"
-      :width="orientation === 'vertical' ? width : height"
-      :height="orientation === 'vertical' ? height : width"
       :viewBox="viewBox"
+      preserveAspectRatio="xMidYMid meet"
     >
       <!-- Whiskers -->
       <line
@@ -306,10 +305,8 @@ export default {
     const max = computed(() => getScaledValue(maxValue.value));
     const outliers = computed(() => outlierValues.value);
 
-    // Container style
+    // Container style - fluid sizing for WeWeb editor
     const containerStyle = computed(() => ({
-      width: `${width.value}px`,
-      height: `${height.value}px`,
       boxSizing: 'border-box',
       overflow: 'hidden',
       border: 'none',
@@ -378,6 +375,8 @@ export default {
 }
 
 .boxplot-svg {
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 </style>
