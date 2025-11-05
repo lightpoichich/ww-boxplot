@@ -243,16 +243,16 @@ export default {
     // Fixed viewBox with standard dimensions
     // This provides a stable coordinate system regardless of container size
     // The parent container (WeWeb) controls the actual rendered pixel dimensions
-    const viewBoxWidth = 400;
-    const viewBoxHeight = 300;
+    // Using a square viewBox ensures consistent centering in any aspect ratio
+    const viewBoxSize = 400;
 
     const viewBox = computed(() => {
-      return `0 0 ${viewBoxWidth} ${viewBoxHeight}`;
+      return `0 0 ${viewBoxSize} ${viewBoxSize}`;
     });
 
-    // Calculate the center of the box (horizontal center)
+    // Calculate the center of the box (true center for centering)
     const boxCenter = computed(() => {
-      return viewBoxWidth / 2;
+      return viewBoxSize / 2;
     });
 
     // Calculate the data range
@@ -284,13 +284,13 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      // Scale within the fixed viewBox height
-      const availableSpace = viewBoxHeight - 2 * padding.value;
+      // Scale within the fixed square viewBox
+      const availableSpace = viewBoxSize - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
       // Invert the y-coordinate (SVG y increases downward, but data increases upward)
-      return viewBoxHeight - scaled;
+      return viewBoxSize - scaled;
     };
 
     // Scaled coordinates for the boxplot elements
@@ -368,19 +368,16 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: visible;
-  /* Ensure container adapts to parent's dimensions */
-  min-width: 0;
-  min-height: 0;
 }
 
 .boxplot-svg {
   width: 100%;
   height: 100%;
   overflow: visible;
-  /* SVG maintains aspect ratio and centers in container */
+  /* preserveAspectRatio centers the viewBox content */
+  display: block;
 }
 </style>
