@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="boxplot-container" :style="containerStyle">
+  <div class="boxplot-container" :style="containerStyle">
     <svg
       class="boxplot-svg"
       :viewBox="viewBox"
@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed } from 'vue';
 
 export default {
   props: {
@@ -166,11 +166,6 @@ export default {
     /* wwEditor:end */
   },
   setup(props) {
-    // Container reference for ResizeObserver
-    const containerRef = ref(null);
-    const containerWidth = ref(500);
-    const containerHeight = ref(500);
-    const resizeObserver = ref(null);
     // Editor state
     const isEditing = computed(() => {
       /* wwEditor:start */
@@ -178,26 +173,6 @@ export default {
       /* wwEditor:end */
       // eslint-disable-next-line no-unreachable
       return false;
-    });
-
-    // Initialize ResizeObserver to measure container
-    onMounted(() => {
-      if (containerRef.value) {
-        resizeObserver.value = new ResizeObserver((entries) => {
-          for (let entry of entries) {
-            containerWidth.value = entry.contentRect.width;
-            containerHeight.value = entry.contentRect.height;
-          }
-        });
-        resizeObserver.value.observe(containerRef.value);
-      }
-    });
-
-    // Clean up ResizeObserver
-    onBeforeUnmount(() => {
-      if (resizeObserver.value) {
-        resizeObserver.value.disconnect();
-      }
     });
 
     // Get values from content with defaults
@@ -265,15 +240,19 @@ export default {
       }
     };
 
-    // Rectangular viewBox using actual container dimensions
-    // No forced square aspect ratio - adapts naturally to any container shape
+    // Fixed viewBox with standard dimensions
+    // This provides a stable coordinate system regardless of container size
+    // The parent container (WeWeb) controls the actual rendered pixel dimensions
+    const viewBoxWidth = 400;
+    const viewBoxHeight = 300;
+
     const viewBox = computed(() => {
-      return `0 0 ${containerWidth.value} ${containerHeight.value}`;
+      return `0 0 ${viewBoxWidth} ${viewBoxHeight}`;
     });
 
-    // Calculate the center of the box (horizontal center for vertical orientation)
+    // Calculate the center of the box (horizontal center)
     const boxCenter = computed(() => {
-      return containerWidth.value / 2;
+      return viewBoxWidth / 2;
     });
 
     // Calculate the data range
@@ -305,13 +284,13 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      // For vertical orientation, scale within the height dimension
-      const availableSpace = containerHeight.value - 2 * padding.value;
+      // Scale within the fixed viewBox height
+      const availableSpace = viewBoxHeight - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
       // Invert the y-coordinate (SVG y increases downward, but data increases upward)
-      return containerHeight.value - scaled;
+      return viewBoxHeight - scaled;
     };
 
     // Scaled coordinates for the boxplot elements
@@ -333,9 +312,6 @@ export default {
     }));
 
     return {
-      // Container reference
-      containerRef,
-
       // Dimensions and orientation
       orientation,
       viewBox,
