@@ -1,9 +1,9 @@
 <template>
-  <div class="boxplot-container" :style="containerStyle">
+  <div ref="containerRef" class="boxplot-container" :style="containerStyle">
     <svg
       class="boxplot-svg"
       :viewBox="viewBox"
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
     >
       <!-- Whiskers -->
       <line
@@ -146,26 +146,31 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
   props: {
-    content: { 
-      type: Object, 
-      required: true 
+    content: {
+      type: Object,
+      required: true
     },
-    uid: { 
-      type: String, 
-      required: true 
+    uid: {
+      type: String,
+      required: true
     },
     /* wwEditor:start */
-    wwEditorState: { 
-      type: Object, 
-      required: true 
+    wwEditorState: {
+      type: Object,
+      required: true
     },
     /* wwEditor:end */
   },
   setup(props) {
+    // Container reference for ResizeObserver
+    const containerRef = ref(null);
+    const containerWidth = ref(500);
+    const containerHeight = ref(500);
+    const resizeObserver = ref(null);
     // Editor state
     const isEditing = computed(() => {
       /* wwEditor:start */
@@ -173,6 +178,26 @@ export default {
       /* wwEditor:end */
       // eslint-disable-next-line no-unreachable
       return false;
+    });
+
+    // Initialize ResizeObserver to measure container
+    onMounted(() => {
+      if (containerRef.value) {
+        resizeObserver.value = new ResizeObserver((entries) => {
+          for (let entry of entries) {
+            containerWidth.value = entry.contentRect.width;
+            containerHeight.value = entry.contentRect.height;
+          }
+        });
+        resizeObserver.value.observe(containerRef.value);
+      }
+    });
+
+    // Clean up ResizeObserver
+    onBeforeUnmount(() => {
+      if (resizeObserver.value) {
+        resizeObserver.value.disconnect();
+      }
     });
 
     // Get values from content with defaults
@@ -240,13 +265,19 @@ export default {
       }
     };
 
-    // Fixed viewBox size - square coordinate space for centering
-    // The actual render size is controlled by the parent container
-    const viewBoxSize = 500;
-    const viewBox = computed(() => `0 0 ${viewBoxSize} ${viewBoxSize}`);
+    // Dynamic viewBox based on measured container
+    // This ensures uniform scaling regardless of container aspect ratio
+    const viewBox = computed(() => {
+      const w = orientation.value === 'vertical' ? containerWidth.value : containerHeight.value;
+      const h = orientation.value === 'vertical' ? containerHeight.value : containerWidth.value;
+      return `0 0 ${w} ${h}`;
+    });
 
     // Calculate the center of the box
-    const boxCenter = computed(() => viewBoxSize / 2);
+    const boxCenter = computed(() => {
+      const size = orientation.value === 'vertical' ? containerWidth.value : containerHeight.value;
+      return size / 2;
+    });
 
     // Calculate the data range
     const dataRange = computed(() => {
@@ -277,13 +308,15 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      const availableSpace = viewBoxSize - 2 * padding.value;
+      // Use measured container dimensions for scaling
+      const mainDimension = orientation.value === 'vertical' ? containerHeight.value : containerWidth.value;
+      const availableSpace = mainDimension - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
       // For vertical orientation, we need to invert the y-coordinate
       return orientation.value === 'vertical'
-        ? viewBoxSize - scaled
+        ? mainDimension - scaled
         : scaled;
     };
 
@@ -306,6 +339,9 @@ export default {
     }));
 
     return {
+      // Container reference
+      containerRef,
+
       // Dimensions and orientation
       orientation,
       viewBox,
@@ -363,6 +399,8 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   overflow: visible;
   /* Ensure container adapts to parent's dimensions */
   min-width: 0;
@@ -373,9 +411,6 @@ export default {
   width: 100%;
   height: 100%;
   overflow: visible;
-  flex: 1;
-  /* Ensure SVG respects parent constraints */
-  min-width: 0;
-  min-height: 0;
+  /* SVG maintains aspect ratio and centers in container */
 }
 </style>
