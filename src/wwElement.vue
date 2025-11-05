@@ -265,18 +265,15 @@ export default {
       }
     };
 
-    // Dynamic viewBox based on measured container
-    // This ensures uniform scaling regardless of container aspect ratio
+    // Rectangular viewBox using actual container dimensions
+    // No forced square aspect ratio - adapts naturally to any container shape
     const viewBox = computed(() => {
-      const w = orientation.value === 'vertical' ? containerWidth.value : containerHeight.value;
-      const h = orientation.value === 'vertical' ? containerHeight.value : containerWidth.value;
-      return `0 0 ${w} ${h}`;
+      return `0 0 ${containerWidth.value} ${containerHeight.value}`;
     });
 
-    // Calculate the center of the box
+    // Calculate the center of the box (horizontal center for vertical orientation)
     const boxCenter = computed(() => {
-      const size = orientation.value === 'vertical' ? containerWidth.value : containerHeight.value;
-      return size / 2;
+      return containerWidth.value / 2;
     });
 
     // Calculate the data range
@@ -308,16 +305,13 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      // Use measured container dimensions for scaling
-      const mainDimension = orientation.value === 'vertical' ? containerHeight.value : containerWidth.value;
-      const availableSpace = mainDimension - 2 * padding.value;
+      // For vertical orientation, scale within the height dimension
+      const availableSpace = containerHeight.value - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
-      // For vertical orientation, we need to invert the y-coordinate
-      return orientation.value === 'vertical'
-        ? mainDimension - scaled
-        : scaled;
+      // Invert the y-coordinate (SVG y increases downward, but data increases upward)
+      return containerHeight.value - scaled;
     };
 
     // Scaled coordinates for the boxplot elements
