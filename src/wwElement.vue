@@ -3,7 +3,7 @@
     <svg
       class="boxplot-svg"
       :viewBox="viewBox"
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
     >
       <!-- Whiskers -->
       <line
@@ -240,13 +240,17 @@ export default {
       }
     };
 
-    // Fixed viewBox size - square coordinate space for centering
-    // The actual render size is controlled by the parent container
-    const viewBoxSize = 500;
-    const viewBox = computed(() => `0 0 ${viewBoxSize} ${viewBoxSize}`);
+    // Dynamic viewBox dimensions based on orientation
+    // Vertical: narrow and tall (300x500), Horizontal: wide and short (500x300)
+    const viewBoxWidth = computed(() => orientation.value === 'vertical' ? 300 : 500);
+    const viewBoxHeight = computed(() => orientation.value === 'vertical' ? 500 : 300);
+    const viewBox = computed(() => `0 0 ${viewBoxWidth.value} ${viewBoxHeight.value}`);
 
-    // Calculate the center of the box
-    const boxCenter = computed(() => viewBoxSize / 2);
+    // Calculate the center of the perpendicular axis
+    // Vertical mode: center on X axis (width), Horizontal mode: center on Y axis (height)
+    const boxCenter = computed(() =>
+      orientation.value === 'vertical' ? viewBoxWidth.value / 2 : viewBoxHeight.value / 2
+    );
 
     // Calculate the data range
     const dataRange = computed(() => {
@@ -277,13 +281,15 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      const availableSpace = viewBoxSize - 2 * padding.value;
+      // Use the appropriate dimension based on orientation
+      const dataAxisSize = orientation.value === 'vertical' ? viewBoxHeight.value : viewBoxWidth.value;
+      const availableSpace = dataAxisSize - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
       // For vertical orientation, we need to invert the y-coordinate
       return orientation.value === 'vertical'
-        ? viewBoxSize - scaled
+        ? dataAxisSize - scaled
         : scaled;
     };
 
