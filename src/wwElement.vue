@@ -150,18 +150,18 @@ import { computed } from 'vue';
 
 export default {
   props: {
-    content: { 
-      type: Object, 
-      required: true 
+    content: {
+      type: Object,
+      required: true
     },
-    uid: { 
-      type: String, 
-      required: true 
+    uid: {
+      type: String,
+      required: true
     },
     /* wwEditor:start */
-    wwEditorState: { 
-      type: Object, 
-      required: true 
+    wwEditorState: {
+      type: Object,
+      required: true
     },
     /* wwEditor:end */
   },
@@ -183,6 +183,10 @@ export default {
     const maxValue = computed(() => props.content?.maxValue ?? 100);
     const outlierValues = computed(() => props.content?.outlierValues ?? []);
     const orientation = computed(() => props.content?.orientation ?? 'vertical');
+
+    // Sizing properties
+    const width = computed(() => props.content?.width ?? 500);
+    const height = computed(() => props.content?.height ?? 300);
 
     // Styling properties
     const padding = computed(() => props.content?.padding ?? 40);
@@ -301,18 +305,19 @@ export default {
     const max = computed(() => getScaledValue(maxValue.value));
     const outliers = computed(() => outlierValues.value);
 
-    // Container style - the width/height properties define the viewBox dimensions
-    // The actual rendered size is controlled by the parent element's CSS
+    // Container style - width/height properties control the actual rendered size
     const containerStyle = computed(() => ({
+      width: `${width.value}px`,
+      height: `${height.value}px`,
       boxSizing: 'border-box',
       overflow: 'visible',
       border: 'none',
-      // Width and height properties define the data space, not the render size
-      // The parent container (or CSS) controls actual pixel dimensions
     }));
 
     return {
       // Dimensions and orientation
+      width,
+      height,
       orientation,
       viewBox,
       boxCenter,
@@ -365,23 +370,16 @@ export default {
 .boxplot-container {
   box-sizing: border-box;
   position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  display: block;
   overflow: visible;
-  /* Ensure container adapts to parent's dimensions */
-  min-width: 0;
-  min-height: 0;
 }
 
 .boxplot-svg {
   width: 100%;
   height: 100%;
+  display: block;
   overflow: visible;
-  flex: 1;
-  /* Ensure SVG respects parent constraints */
-  min-width: 0;
-  min-height: 0;
+  /* Square viewBox centers in any container */
+  /* preserveAspectRatio="xMidYMid meet" */
 }
 </style>
