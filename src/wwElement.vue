@@ -244,20 +244,17 @@ export default {
       }
     };
 
-    // Fixed viewBox with standard dimensions
-    // This provides a stable coordinate system regardless of container size
-    // The parent container (WeWeb) controls the actual rendered pixel dimensions
-    // Using a square viewBox ensures consistent centering in any aspect ratio
-    const viewBoxSize = 400;
+    // Dynamic viewBox dimensions based on orientation
+    // Vertical: narrow and tall (300x500), Horizontal: wide and short (500x300)
+    const viewBoxWidth = computed(() => orientation.value === 'vertical' ? 300 : 500);
+    const viewBoxHeight = computed(() => orientation.value === 'vertical' ? 500 : 300);
+    const viewBox = computed(() => `0 0 ${viewBoxWidth.value} ${viewBoxHeight.value}`);
 
-    const viewBox = computed(() => {
-      return `0 0 ${viewBoxSize} ${viewBoxSize}`;
-    });
-
-    // Calculate the center of the box (true center for centering)
-    const boxCenter = computed(() => {
-      return viewBoxSize / 2;
-    });
+    // Calculate the center of the perpendicular axis
+    // Vertical mode: center on X axis (width), Horizontal mode: center on Y axis (height)
+    const boxCenter = computed(() =>
+      orientation.value === 'vertical' ? viewBoxWidth.value / 2 : viewBoxHeight.value / 2
+    );
 
     // Calculate the data range
     const dataRange = computed(() => {
@@ -288,13 +285,16 @@ export default {
 
       if (range === 0) return padding.value; // Prevent division by zero
 
-      // Scale within the fixed square viewBox
-      const availableSpace = viewBoxSize - 2 * padding.value;
+      // Use the appropriate dimension based on orientation
+      const dataAxisSize = orientation.value === 'vertical' ? viewBoxHeight.value : viewBoxWidth.value;
+      const availableSpace = dataAxisSize - 2 * padding.value;
 
       const scaled = ((value - min) / range) * availableSpace + padding.value;
 
-      // Invert the y-coordinate (SVG y increases downward, but data increases upward)
-      return viewBoxSize - scaled;
+      // For vertical orientation, we need to invert the y-coordinate
+      return orientation.value === 'vertical'
+        ? dataAxisSize - scaled
+        : scaled;
     };
 
     // Scaled coordinates for the boxplot elements
