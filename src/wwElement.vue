@@ -244,10 +244,9 @@ export default {
       }
     };
 
-    // Dynamic viewBox dimensions based on orientation
-    // Vertical: narrow and tall (300x500), Horizontal: wide and short (500x300)
-    const viewBoxWidth = computed(() => orientation.value === 'vertical' ? 300 : 500);
-    const viewBoxHeight = computed(() => orientation.value === 'vertical' ? 500 : 300);
+    // Dynamic viewBox dimensions - user controllable for custom aspect ratios
+    const viewBoxWidth = computed(() => props.content?.viewBoxWidth ?? 300);
+    const viewBoxHeight = computed(() => props.content?.viewBoxHeight ?? 500);
     const viewBox = computed(() => `0 0 ${viewBoxWidth.value} ${viewBoxHeight.value}`);
 
     // Calculate the center of the perpendicular axis

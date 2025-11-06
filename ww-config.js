@@ -170,6 +170,44 @@ height: {
   /* wwEditor:end */
 },
 
+// ViewBox dimensions (controls aspect ratio)
+viewBoxWidth: {
+  label: { en: 'ViewBox Width' },
+  type: 'Number',
+  section: 'settings',
+  bindable: true,
+  defaultValue: 300,
+  min: 100,
+  max: 1000,
+  /* wwEditor:start */
+  bindingValidation: {
+    type: 'number',
+    tooltip: 'The internal coordinate width of the SVG viewBox',
+  },
+  propertyHelp: {
+    tooltip: 'Controls the aspect ratio by setting the SVG viewBox width. Smaller values make the boxplot narrower.',
+  },
+  /* wwEditor:end */
+},
+viewBoxHeight: {
+  label: { en: 'ViewBox Height' },
+  type: 'Number',
+  section: 'settings',
+  bindable: true,
+  defaultValue: 500,
+  min: 100,
+  max: 1000,
+  /* wwEditor:start */
+  bindingValidation: {
+    type: 'number',
+    tooltip: 'The internal coordinate height of the SVG viewBox',
+  },
+  propertyHelp: {
+    tooltip: 'Controls the aspect ratio by setting the SVG viewBox height. Larger values make the boxplot taller.',
+  },
+  /* wwEditor:end */
+},
+
 // Padding
 padding: {
 label: { en: 'Padding' },
